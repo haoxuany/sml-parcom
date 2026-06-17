@@ -1,6 +1,6 @@
 Group is
-  ../src/parcom.cm
-  ../src/mixfix.cm
+  ../parcom.cm
+  ../mixfix.cm
   ../lib/cmlib/cmlib.cm
 
   calc.sml

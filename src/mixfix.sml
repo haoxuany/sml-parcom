@@ -274,14 +274,14 @@ functor MixFix (
 
                           val parsePrefix = P.either parsePrefix
                         in
-                          SOME (P.fix (fn parseRightRecursive =>
+                          SOME (P.forget (P.fix (fn parseRightRecursive =>
                             P.bind parsePrefix (fn ( prefix , construct ) =>
-                            P.bind 
+                            P.bind
                             (P.either [ parseHigher , parseRightRecursive ])
-                            (fn exp => 
+                            (fn exp =>
                               P.return (construct (prefix @ [ exp ]) )
                             )
-                          )))
+                          ))))
                         end
 
                   (* LeftRecursive can be parsed as "_postfix" *)
@@ -312,16 +312,16 @@ functor MixFix (
 
                           val parsePostfix = P.either parsePostfix
                         in
-                          SOME (P.fix (fn parseLeftRecursive =>
-                            P.bind 
+                          SOME (P.forget (P.fix (fn parseLeftRecursive =>
+                            P.bind
                             (P.either [ parseLeftRecursive , parseHigher ])
                             (fn left =>
-                            
+
                             P.bind parsePostfix (fn ( right , construct ) =>
-                            
+
                             P.return (construct (left :: right))
                             ))
-                          ))
+                          )))
                         end
                       
                   val parseFixity = 

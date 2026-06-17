@@ -1,0 +1,10 @@
+local
+  $(SML_LIB)/basis/basis.mlb
+  lib/cmlib/cmlib.mlb
+
+  src/parcom.sig.sml
+  src/parcom.sml
+in
+  signature PARCOM
+  functor Parcom
+end

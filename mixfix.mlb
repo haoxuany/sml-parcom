@@ -1,0 +1,12 @@
+local
+  $(SML_LIB)/basis/basis.mlb
+  lib/cmlib/cmlib.mlb
+
+  parcom.mlb
+
+  src/mixfix.sig.sml
+  src/mixfix.sml
+in
+  signature MIXFIX
+  functor MixFix
+end

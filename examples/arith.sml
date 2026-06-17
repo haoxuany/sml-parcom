@@ -21,7 +21,7 @@ struct
   val number : int t =
     map (List.foldl (fn (d, acc) => acc * 10 + d) 0) (plus digit)
 
-  val expr : int t = fix (fn expr => either [
+  val expr : int t_memo = fix (fn expr => either [
     bind expr (fn l =>
     bind (char #"+") (fn () =>
     bind expr (fn r =>

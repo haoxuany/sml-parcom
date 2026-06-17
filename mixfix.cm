@@ -2,9 +2,9 @@ Library
   signature MIXFIX
   functor MixFix
 is
-  ../lib/cmlib/cmlib.cm
+  lib/cmlib/cmlib.cm
 
   parcom.cm
 
-  mixfix.sig.sml
-  mixfix.sml
+  src/mixfix.sig.sml
+  src/mixfix.sml

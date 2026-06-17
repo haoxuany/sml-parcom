@@ -1,0 +1,8 @@
+Library
+  functor Parcom
+  signature PARCOM
+is
+  lib/cmlib/cmlib.cm
+
+  src/parcom.sig.sml
+  src/parcom.sml
