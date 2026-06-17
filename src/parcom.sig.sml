@@ -1,0 +1,38 @@
+
+signature PARCOM = sig
+  type token
+  type 'a stream
+  type 'a t
+
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val bind : 'a t -> ('a -> 'b t) -> 'b t
+  val return : 'a -> 'a t
+
+  val terminal : (token -> 'a option) -> 'a t
+  (* Provides () if true, no parse if false *)
+  val remove : (token -> bool) -> unit t
+
+  val either : ('a t list) -> 'a t 
+  val epsilon : 'a -> 'a t
+  val optional : 'a t -> 'a option t
+  val star : 'a t -> 'a list t
+  val plus : 'a t -> 'a list t
+
+  type 'a t_memo
+
+  val memoize : 'a t -> 'a t_memo
+
+  val fix : ('a t -> 'a t) -> 'a t_memo
+  val fix2 : ('a t * 'b t -> 'a t * 'b t) -> 'a t_memo * 'b t_memo
+  val fix3 : ('a t * 'b t * 'c t -> 'a t * 'b t * 'c t)
+    -> 'a t_memo * 'b t_memo * 'c t_memo
+  val fix4 : ('a t * 'b t * 'c t * 'd t -> 'a t * 'b t * 'c t * 'd t)
+    -> 'a t_memo * 'b t_memo * 'c t_memo * 'd t_memo
+  val fix5 : ('a t * 'b t * 'c t * 'd t * 'e t
+    -> 'a t * 'b t * 'c t * 'd t * 'e t)
+    -> 'a t_memo * 'b t_memo * 'c t_memo * 'd t_memo * 'e t_memo
+  (* If you need more than 5 fixed points, you will have to backpatch with
+  * memoize yourself. *)
+
+  val parser : 'a t_memo -> token stream -> ('a * token stream) list
+end
