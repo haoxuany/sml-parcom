@@ -15,7 +15,8 @@ functor Parcom (
   open Stream
 
   type token = token
-  type stream = token stream * int
+  type pos = int * int (* request id * stream position *)
+  type stream = token stream * pos
   type 'a t = stream -> (('a * stream) -> unit) -> unit
   type 'a t_memo = 'a t
 
@@ -24,13 +25,13 @@ functor Parcom (
       a s (fn ( b , s ) => k ( f b , s ))
 
   fun terminal (f : token -> 'a option) : 'a t =
-    fn ( s , pos ) => fn k =>
+    fn ( s , ( reqid , pos ) ) => fn k =>
       case front s of
         Nil => ()
       | Cons ( h , t ) =>
           (case f h of
             NONE => ()
-          | SOME v => k ( v , ( t , pos + 1 ) ))
+          | SOME v => k ( v , ( t , ( reqid , pos + 1 )) ))
 
   fun remove (f : token -> bool) : unit t =
     terminal (fn tok => if f tok then SOME () else NONE)
@@ -66,28 +67,32 @@ functor Parcom (
       , continuations : (('a * stream) -> unit) list ref
       }
 
-    type 'a table = 'a mem HashTable.table
+    type 'a table = ('a mem HashTable.table) * (int ref)
 
-    (* Positions in streams need to be unique. To enforce this,
-     * we bump largest whenever we perform a lookup. *)
-    val largest = ref 0
+    fun init () : 'a table = ( HashTable.table table_size , ref 0 )
 
-    fun init () : 'a table = HashTable.table table_size
-
-    fun find (table : 'a table) (pos : int) : 'a mem =
-      case HashTable.find table pos of
-        SOME v => v
+    fun find ( ( table , tableid ) : 'a table) (( reqid , pos ) : pos) : 'a mem =
+      let
         (* We create the hash entry, since for memoization the lookup means
          * we will need to push a continuation later. *)
-      | NONE =>
+        fun create_empty () =
           let
             val mem = { results = ref [] , continuations = ref [] }
             val () = HashTable.insert table pos mem
-            val () = if pos > (!largest) then largest := pos
-                     else ()
           in
             mem
           end
+      in
+        if reqid <> (!tableid) then
+          ( HashTable.reset table table_size
+          ; tableid := reqid
+          ; create_empty ()
+          )
+        else
+          case HashTable.find table pos of
+            SOME v => v
+          | NONE => create_empty ()
+      end
 
     fun push (l : 'a list ref) (v : 'a) =
       l := v :: (!l)
@@ -126,12 +131,25 @@ functor Parcom (
 
   fun forget (parser : 'a t) : 'a t = parser
 
+  local
+    val currentid = ref ~1
+  in
+    fun newid () =
+      let 
+        val current = (!currentid) + 1
+      in
+        ( currentid := current
+        ; current
+        )
+      end
+  end
+
   fun parser (p : 'a t) :
     token Stream.stream -> ('a * token Stream.stream) list =
     fn s =>
     let
       val results = ref []
-      val () = p ( s , !Lookup.largest + 1 )
+      val () = p ( s , ( newid () , 0 ) )
         (fn ( parse , ( s , _ ) ) => Lookup.push results ( parse , s ))
     in
       !results
