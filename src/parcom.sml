@@ -124,6 +124,8 @@ functor Parcom (
       f
     end
 
+  fun forget (parser : 'a t) : 'a t = parser
+
   fun parser (p : 'a t) :
     token Stream.stream -> ('a * token Stream.stream) list =
     fn s =>

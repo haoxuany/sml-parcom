@@ -1,5 +1,7 @@
 Group is
-  ../src/sources.cm
+  ../src/parcom.cm
+  ../src/mixfix.cm
   ../lib/cmlib/cmlib.cm
 
   arith.sml
+  mixfix.sml
