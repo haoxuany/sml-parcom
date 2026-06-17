@@ -243,4 +243,6 @@ functor Parcom (
     end
 
   type 'a stream = 'a Stream.stream
+
+  val dummy = fn _ => fn _ => ()
 end

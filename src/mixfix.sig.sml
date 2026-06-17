@@ -14,6 +14,7 @@ signature MIXFIX = sig
     SyntaxId of id
   | SyntaxHole
 
+  (* Following Agda conventions: higher precedence binds more tightly *)
   type precedence = int
 
   datatype assoc =
