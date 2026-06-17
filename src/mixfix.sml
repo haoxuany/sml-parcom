@@ -4,7 +4,6 @@ functor MixFix (
   structure Exp : sig
     type t
     val id : Id.t -> t
-    val app : t -> t -> t
   end
 
   val table_size : int
@@ -189,15 +188,6 @@ functor MixFix (
 
           (* For parsing fixity, we need to be more involved. *)
 
-          (* Application is basically just Kleene-star of atoms *)
-          val parseApp = 
-            P.bind (P.plus parseAtom) 
-            (fn l =>
-              case l of 
-                h :: tail => 
-                P.return (List.foldl (fn ( x , f ) => Exp.app f x) h tail)
-              | _ => raise Fail "Impossible")
-
           (* Everything else left is complicated since it involves
           * associativity, and we have to construct this by precedence
           * level by level. Any expression at a lower precedence, can
@@ -346,7 +336,7 @@ functor MixFix (
               DictPrec.foldr 
               (fn ( _ , rules , parseHigher ) =>
                 parseLevel parseTop parseHigher rules)
-              parseApp precedences
+              parseAtom precedences
             end
             
 

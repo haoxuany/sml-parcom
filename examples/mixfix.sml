@@ -11,7 +11,6 @@ structure M = MixFix (
   structure Exp = struct
     type t = expr
     val id = Atom
-    val app = fn f => fn x => App ( f , x )
   end
   val table_size = 256
   structure Stream = Stream
@@ -55,6 +54,13 @@ fun run ops s =
 val S = SyntaxId
 val H = SyntaxHole
 
+fun appRule prec : rule =
+  { syntax = [ H , H ]
+  , precedence = prec
+  , assoc = AssocLeft
+  , construct = fn [ f , x ] => App ( f , x ) | _ => raise Fail "App"
+  }
+
 val () =
 let
   val arith = List.map rule [
@@ -74,8 +80,10 @@ let
   val closed = List.map rule [
     ( "_+_" , [ H , S "+" , H ]     , 6 , AssocLeft ) ,
     ( "[_]" , [ S "[" , H , S "]" ] , 0 , AssocNone ) ]
-  val app = List.map rule [
-    ( "_+_" , [ H , S "+" , H ] , 6 , AssocLeft ) ]
+  val app = appRule 0 :: List.map rule [
+    ( "_+_" , [ H , S "+" , H ] , 6 , AssocLeft ) ,
+    ( "_*_" , [ H , S "*" , H ] , 7 , AssocLeft ) ,
+    ( "-_"  , [ S "-" , H ]     , 8 , AssocNone ) ]
   val eq = List.map rule [
     ( "_==_" , [ H , S "==" , H ] , 4 , AssocNone ) ,
     ( "_+_"  , [ H , S "+"  , H ] , 6 , AssocLeft ) ]
@@ -105,7 +113,9 @@ in
 
   run closed "[ a ]"; run closed "[ a + b ]"; run closed "[ a ] + [ b ]";
 
-  run app "f x"; run app "f x y"; run app "f x + g y";
+  run app "f x"; run app "f x y";
+  run app "f x + a y"; run app "f x * a y";
+  run app "- f x"; run app "f - x";
 
   run eq "a == b"; run eq "a + b == c"; run eq "a == b == c";
 

@@ -9,7 +9,6 @@ structure M = MixFix (
       case Real.fromString s of
         SOME r => r
       | NONE => raise Fail (String.concat [ "Unknown value: " , s ])
-    val app = fn _ => fn _ => raise Fail "No function application in calc"
   end
   val table_size = 256
   structure Stream = Stream
