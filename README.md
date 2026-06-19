@@ -57,10 +57,14 @@ signature PARCOM = sig
 
   val memoize : 'a t -> 'a t_memo
 
-  (* These two are for manual backpatching *)
-  val dummy : 'a t
+  (* These are for manual backpatching *)
   (* This doesn't really forget, it just relaxes the type for backpatching. *)
   val forget : 'a t_memo -> 'a t
+
+  type 'a t_dummy
+  val dummy : unit -> 'a t_dummy
+  val set : 'a t_dummy -> 'a t_memo -> unit
+  val deref : 'a t_dummy -> 'a t
 
   val fix : ('a t -> 'a t) -> 'a t_memo
   val fix2 : ('a t * 'b t -> 'a t * 'b t) -> 'a t_memo * 'b t_memo
@@ -112,16 +116,15 @@ Since the rules of `E` depend on parsing `E` itself, this involves using the bac
 
 This applies to mutual fixed points as well, and hence the functions `fix2`, `fix3`, etc. In the case where you have more (or unknown number of) mutual fixed points, you can implement backpatching through, for example:
 ```
-  fun eta v = fn x => (forget (!v)) x
-  fun fix2 (f : 'a t * 'b t -> 'a t * 'b t) : 'a t * 'b t =
+  fun fix2 (f : 'a t * 'b t -> 'a t * 'b t) : 'a t_memo * 'b t_memo =
     let
-      val v1 = ref dummy
-      val v2 = ref dummy
-      val (r1, r2) = f (eta v1, eta v2)
+      val v1 = dummy ()
+      val v2 = dummy ()
+      val (r1, r2) = f (deref v1, deref v2)
       val r1 = memoize r1
       val r2 = memoize r2
-      val () = v1 := r1
-      val () = v2 := r2
+      val () = set v1 r1
+      val () = set v2 r2
     in
       (r1, r2)
     end

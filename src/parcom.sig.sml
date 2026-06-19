@@ -22,10 +22,14 @@ signature PARCOM = sig
 
   val memoize : 'a t -> 'a t_memo
 
-  (* These two are for manual backpatching *)
-  val dummy : 'a t
+  (* These are for manual backpatching *)
   (* This doesn't really forget, it just relaxes the type for backpatching. *)
   val forget : 'a t_memo -> 'a t
+
+  type 'a t_dummy
+  val dummy : unit -> 'a t_dummy
+  val set : 'a t_dummy -> 'a t_memo -> unit
+  val deref : 'a t_dummy -> 'a t
 
   val fix : ('a t -> 'a t) -> 'a t_memo
   val fix2 : ('a t * 'b t -> 'a t * 'b t) -> 'a t_memo * 'b t_memo

@@ -244,5 +244,9 @@ functor Parcom (
 
   type 'a stream = 'a Stream.stream
 
-  val dummy = fn _ => fn _ => ()
+  (* Backpatching stuff *)
+  type 'a t_dummy = 'a t ref
+  fun dummy () = ref (fn _ => fn _ => ())
+  fun set dummy v = dummy := v
+  fun deref dummy = fn x => (!dummy) x
 end
