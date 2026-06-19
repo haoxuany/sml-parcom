@@ -33,6 +33,13 @@ functor Parcom (
             NONE => ()
           | SOME v => k ( v , ( t , ( reqid , pos + 1 )) ))
 
+  fun terminals f : 'a t =
+    fn ( s , ( reqid , pos ) ) => fn k =>
+      case f s of
+        NONE => ()
+      | SOME ( v , len , t ) =>
+          k ( v , ( t , ( reqid , pos + len ) ) )
+
   fun remove (f : token -> bool) : unit t =
     terminal (fn tok => if f tok then SOME () else NONE)
 

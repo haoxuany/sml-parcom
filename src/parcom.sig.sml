@@ -9,6 +9,10 @@ signature PARCOM = sig
   val return : 'a -> 'a t
 
   val terminal : (token -> 'a option) -> 'a t
+  (* When multiple tokens need to be consumed (lookahead), you need to provide 
+  * an accurate number of how many tokens are consumed. This is necessary
+  * because of memoization in Johnson. *)
+  val terminals : (token stream ->  ('a * int * token stream) option) -> 'a t
   (* Provides () if true, no parse if false *)
   val remove : (token -> bool) -> unit t
 
