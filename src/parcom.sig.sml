@@ -16,11 +16,20 @@ signature PARCOM = sig
   (* Provides () if true, no parse if false *)
   val remove : (token -> bool) -> unit t
 
-  val either : ('a t list) -> 'a t 
+  val either : ('a t list) -> 'a t
   val epsilon : 'a -> 'a t
   val optional : 'a t -> 'a option t
   val star : 'a t -> 'a list t
   val plus : 'a t -> 'a list t
+
+  (* prefer is similar to either, but it short circuits to the first combinator
+  * that produces any parse, and ignores the rest. *)
+  val prefer : ('a t list) -> 'a t
+  (* These use prefer over either, aka they will always give you only the
+  * longest parse and ignore the rest. *)
+  val optionalLongest : 'a t -> 'a option t
+  val starLongest : 'a t -> 'a list t
+  val plusLongest : 'a t -> 'a list t
 
   type 'a t_memo
 

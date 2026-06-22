@@ -57,6 +57,15 @@ signature PARCOM = sig
   val star : 'a t -> 'a list t
   val plus : 'a t -> 'a list t
 
+  (* prefer is similar to either, but it short circuits to the first combinator
+  * that produces any parse, and ignores the rest. *)
+  val prefer : ('a t list) -> 'a t
+  (* These use prefer over either, aka they will always give you only the
+  * longest parse and ignore the rest. *)
+  val optionalLongest : 'a t -> 'a option t
+  val starLongest : 'a t -> 'a list t
+  val plusLongest : 'a t -> 'a list t
+
   type 'a t_memo
 
   val memoize : 'a t -> 'a t_memo
@@ -94,7 +103,12 @@ The functor takes in a `table_size`, which is the initial size of a hash table u
 An appropriate size here is dependent on how large you expect the average stream to be.
 
 Note that as suggested in the function signature of `parser`, it returns all possible parses,
-along with the rest of the stream, for ambiguous grammars.
+along with the rest of the stream, for ambiguous grammars. The exception is with the usage of
+`prefer` (which does not exist in the Johnson paper): only the first combinator that produces any
+number of parses will be used. 
+This is useful for, say, pulling the longest list of items 
+(ex. all digits of an integer rather than all prefixes of an integer),
+to cut down the number of ambiguous results.
 
 An example of usage can be found in [examples/arith.sml](examples/arith.sml).
 

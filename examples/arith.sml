@@ -67,4 +67,29 @@ struct
     (* Unambiguous due to parens *)
     run "(1+2)*3"
   end
+
+  (* star digit gives all possible splits of a digit sequence;
+   * starLongest digit greedily takes the longest match. *)
+  val starDigit : int list t_memo = memoize (star digit)
+  val starDigitLongest : int list t_memo = memoize (starLongest digit)
+
+  val () = let
+    fun show xs =
+      "[" ^ String.concatWith ", " (List.map Int.toString xs) ^ "]"
+    fun run label p input =
+      let
+        val results = parser p (Stream.fromString input)
+        val strs = List.map (fn (v, _) => show v) results
+      in
+        print (String.concat
+          ["  ", label, " \"", input, "\" => [",
+           String.concatWith ", " strs, "]\n"])
+      end
+  in
+    print "\ngreedy digit parsing:\n";
+    (* star digit returns all prefixes: [], [1], [1,2], [1,2,3] *)
+    run "star digit" starDigit "123";
+    (* starLongest digit returns only the longest: [1,2,3] *)
+    run "starLongest digit" starDigitLongest "123"
+  end
 end

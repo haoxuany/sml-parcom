@@ -66,6 +66,32 @@ functor Parcom (
     bind a (fn hd => fn s => fn k =>
       star a s (fn ( tail , s ) => k ( hd :: tail , s )))
 
+  fun prefer (l : 'a t list) : 'a t =
+    fn s => fn k =>
+    let
+      fun prefer l =
+        case l of
+          nil => ()
+        | f :: rest =>
+          let
+            val set = ref false
+            val () = f s (fn v => ( set := true ; k v ))
+          in
+            if !set then () else prefer rest
+          end
+    in
+      prefer l
+    end
+
+  fun optionalLongest (a : 'a t) : 'a option t =
+    prefer [ map SOME a , epsilon NONE ]
+
+  fun starLongest (a : 'a t) : 'a list t =
+    prefer [ plusLongest a , epsilon nil ]
+  and plusLongest (a : 'a t) : 'a list t =
+    bind a (fn hd => fn s => fn k =>
+      starLongest a s (fn ( tail , s ) => k ( hd :: tail , s )))
+
   structure HashTable = HashTable (structure Key = IntHashable)
 
   structure Lookup = struct
