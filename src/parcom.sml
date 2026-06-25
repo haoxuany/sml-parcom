@@ -90,6 +90,22 @@ functor Parcom (
       prefer l
     end
 
+  (* I don't have a good straightforward proof that this works,
+  * this is a little sketchy, but the reasoning is that:
+  * - Continuations are always called in the order in which functions are
+  * called, even (and especially) in the case of memoize. 
+  * - All continuations are called with the same result in each position.
+  * - As such, simply testing for continuation output is sufficient. *)
+  fun join (f : ('a * stream) list -> ('a * stream) list) (p : 'a t) : 'a t =
+    fn s => fn k =>
+    let
+      val results = ref nil
+      val () = p s
+        (fn result => results := result :: (!results))
+    in
+      List.app k (f (List.rev (!results)))
+    end
+
   fun optionalLongest (a : 'a t) : 'a option t =
     prefer [ map SOME a , epsilon NONE ]
 

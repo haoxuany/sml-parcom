@@ -38,6 +38,7 @@ signature PARCOM = sig
   type token
   type stream
 
+  type pos
   type 'a t
 
   val map : ('a -> 'b) -> 'a t -> 'b t
@@ -67,6 +68,12 @@ signature PARCOM = sig
   val optionalLongest : 'a t -> 'a option t
   val starLongest : 'a t -> 'a list t
   val plusLongest : 'a t -> 'a list t
+
+  (* This should pick out a single parse result out of many,
+  * but I don't have a straightforward proof that this is correct. 
+  * Use with extreme caution. *)
+  val join : (('a * (stream * pos)) list -> ('a * (stream * pos)) list)
+    -> 'a t -> 'a t
 
   type 'a t_memo
 
