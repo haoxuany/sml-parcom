@@ -1,7 +1,8 @@
 
 signature PARCOM = sig
   type token
-  type 'a stream
+  type stream
+
   type 'a t
 
   val map : ('a -> 'b) -> 'a t -> 'b t
@@ -12,7 +13,7 @@ signature PARCOM = sig
   (* When multiple tokens need to be consumed (lookahead), you need to provide 
   * an accurate number of how many tokens are consumed. This is necessary
   * because of memoization in Johnson. *)
-  val terminals : (token stream ->  ('a * int * token stream) option) -> 'a t
+  val terminals : (stream ->  ('a * int * stream) option) -> 'a t
   (* Provides () if true, no parse if false *)
   val remove : (token -> bool) -> unit t
 
@@ -56,5 +57,5 @@ signature PARCOM = sig
   (* If you need more than 5 fixed points, you will have to backpatch with
   * memoize yourself. *)
 
-  val parser : 'a t_memo -> token stream -> ('a * token stream) list
+  val parser : 'a t_memo -> stream -> ('a * stream) list
 end

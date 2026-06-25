@@ -1,22 +1,22 @@
 
 functor Parcom (
-  type token
-  val table_size : int
-  structure Stream : sig
-    type 'a stream
-    datatype 'a front = Nil | Cons of 'a * 'a stream
-    val front : 'a stream -> 'a front
+  structure TokenStream : sig
+    type token
+    type stream
+
+    datatype front = Nil | Cons of token * stream
+    val front : stream -> front
   end
 ) :> PARCOM 
-  where type token = token
-  and type 'a stream = 'a Stream.stream
+  where type token = TokenStream.token
+  and type stream = TokenStream.stream
   = struct
 
-  open Stream
+  open TokenStream
 
   type token = token
   type pos = int * int (* request id * stream position *)
-  type stream = token stream * pos
+  type stream = TokenStream.stream * pos
   type 'a t = stream -> (('a * stream) -> unit) -> unit
   type 'a t_memo = 'a t
 
@@ -92,17 +92,18 @@ functor Parcom (
     bind a (fn hd => fn s => fn k =>
       starLongest a s (fn ( tail , s ) => k ( hd :: tail , s )))
 
-  structure HashTable = HashTable (structure Key = IntHashable)
-
   structure Lookup = struct
+
+    structure Dict = SplayDict (structure Key = IntOrdered)
+
     type 'a mem =
       { results : ('a * stream) list ref
       , continuations : (('a * stream) -> unit) list ref
       }
 
-    type 'a table = ('a mem HashTable.table) * (int ref)
+    type 'a table = ('a mem Dict.dict ref) * (int ref)
 
-    fun init () : 'a table = ( HashTable.table table_size , ref 0 )
+    fun init () : 'a table = ( ref Dict.empty , ref 0 )
 
     fun find ( ( table , tableid ) : 'a table) (( reqid , pos ) : pos) : 'a mem =
       let
@@ -111,18 +112,18 @@ functor Parcom (
         fun create_empty () =
           let
             val mem = { results = ref [] , continuations = ref [] }
-            val () = HashTable.insert table pos mem
+            val () = table := Dict.insert (!table) pos mem
           in
             mem
           end
       in
         if reqid <> (!tableid) then
-          ( HashTable.reset table table_size
+          ( table := Dict.empty
           ; tableid := reqid
           ; create_empty ()
           )
         else
-          case HashTable.find table pos of
+          case Dict.find (!table) pos of
             SOME v => v
           | NONE => create_empty ()
       end
@@ -178,7 +179,7 @@ functor Parcom (
   end
 
   fun parser (p : 'a t) :
-    token Stream.stream -> ('a * token Stream.stream) list =
+    TokenStream.stream -> ('a * TokenStream.stream) list =
     fn s =>
     let
       val results = ref []
@@ -275,7 +276,7 @@ functor Parcom (
       (r1, r2, r3, r4, r5)
     end
 
-  type 'a stream = 'a Stream.stream
+  type stream = TokenStream.stream
 
   (* Backpatching stuff *)
   type 'a t_dummy = 'a t ref

@@ -1,9 +1,16 @@
 (* E ::= E '+' E | E '*' E | '(' E ')' | number *)
 
 structure CharParcom = Parcom (
-  type token = char
-  val table_size = 256
-  structure Stream = Stream
+  structure TokenStream = struct
+    type token = char
+    type stream = char Stream.stream
+
+    datatype front = Nil | Cons of token * stream
+    val front : stream -> front =
+      fn s => case Stream.front s of
+        Stream.Nil => Nil
+      | Stream.Cons (h, t) => Cons (h, t)
+  end
 )
 
 structure Arith =

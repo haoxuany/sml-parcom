@@ -20,23 +20,24 @@ The compilation file parcom.{cm/mlb} provides a functor that satisfies this sign
 
 ```
 functor Parcom (
-  type token
-  val table_size : int
-  structure Stream : sig
-    type 'a stream
-    datatype 'a front = Nil | Cons of 'a * 'a stream
-    val front : 'a stream -> 'a front
+  structure TokenStream : sig
+    type token
+    type stream
+
+    datatype front = Nil | Cons of token * stream
+    val front : stream -> front
   end
 ) :> PARCOM 
-  where type token = token
-  and type 'a stream = 'a Stream.stream
+  where type token = TokenStream.token
+  and type stream = TokenStream.stream
 ```
 
 where the `PARCOM` signature is:
 ```
 signature PARCOM = sig
   type token
-  type 'a stream
+  type stream
+
   type 'a t
 
   val map : ('a -> 'b) -> 'a t -> 'b t
@@ -47,11 +48,11 @@ signature PARCOM = sig
   (* When multiple tokens need to be consumed (lookahead), you need to provide 
   * an accurate number of how many tokens are consumed. This is necessary
   * because of memoization in Johnson. *)
-  val terminals : (token stream ->  ('a * int * token stream) option) -> 'a t
+  val terminals : (stream ->  ('a * int * stream) option) -> 'a t
   (* Provides () if true, no parse if false *)
   val remove : (token -> bool) -> unit t
 
-  val either : ('a t list) -> 'a t 
+  val either : ('a t list) -> 'a t
   val epsilon : 'a -> 'a t
   val optional : 'a t -> 'a option t
   val star : 'a t -> 'a list t
@@ -91,16 +92,13 @@ signature PARCOM = sig
   (* If you need more than 5 fixed points, you will have to backpatch with
   * memoize yourself. *)
 
-  val parser : 'a t_memo -> token stream -> ('a * token stream) list
+  val parser : 'a t_memo -> stream -> ('a * stream) list
 end
 ```
 
 The signature is mostly self-explanatory. Given `structure Parser : PARCOM`, a `'a Parser.t` is 
 a parser that parses and returns results of type `'a`.
 `bind` basically parses in sequence (aka, `seq` in the original paper).
-
-The functor takes in a `table_size`, which is the initial size of a hash table used internally for memoization.
-An appropriate size here is dependent on how large you expect the average stream to be.
 
 Note that as suggested in the function signature of `parser`, it returns all possible parses,
 along with the rest of the stream, for ambiguous grammars. The exception is with the usage of
@@ -160,7 +158,6 @@ functor MixFix (
     val id : Id.t -> t
   end
 
-  val table_size : int
   structure Stream : sig
     type 'a stream
     datatype 'a front = Nil | Cons of 'a * 'a stream
@@ -169,7 +166,6 @@ functor MixFix (
 ) : MIXFIX 
   where type id = Id.t
   and type exp = Exp.t
-  and type 'a Parser.stream = 'a Stream.stream
 ```
 ```
 signature MIXFIX = sig
@@ -241,5 +237,5 @@ if you are interested in implementing this on your own, I have a walkthrough on 
 This library is under MIT license. See [LICENSE](LICENSE).
 
 The implementation makes extensive use of data structures within cmlib, most
-notably HashTable and SplaySet. cmlib is licensed under MIT license.
+notably SplayDict and SplaySet. cmlib is licensed under MIT license.
 See [lib/cmlib/LICENSE](lib/cmlib/LICENSE).

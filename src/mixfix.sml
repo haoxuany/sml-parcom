@@ -6,7 +6,6 @@ functor MixFix (
     val id : Id.t -> t
   end
 
-  val table_size : int
   structure Stream : sig
     type 'a stream
     datatype 'a front = Nil | Cons of 'a * 'a stream
@@ -17,11 +16,18 @@ functor MixFix (
   datatype token =
     TokenId of Id.t
   | TokenExp of Exp.t
-  
+
   structure Parser = Parcom (
-    type token = token
-    val table_size = table_size
-    structure Stream = Stream
+    structure TokenStream = struct
+      type token = token
+      type stream = token Stream.stream
+
+      datatype front = Nil | Cons of token * stream
+      val front : stream -> front =
+        fn s => case Stream.front s of
+          Stream.Nil => Nil
+        | Stream.Cons (h, t) => Cons (h, t)
+    end
   )
 
   structure P = Parser

@@ -12,7 +12,6 @@ structure M = MixFix (
     type t = expr
     val id = Atom
   end
-  val table_size = 256
   structure Stream = Stream
 )
 

@@ -10,7 +10,6 @@ structure M = MixFix (
         SOME r => r
       | NONE => raise Fail (String.concat [ "Unknown value: " , s ])
   end
-  val table_size = 256
   structure Stream = Stream
 )
 
