@@ -18,6 +18,7 @@ signature PARCOM = sig
   val remove : (token -> bool) -> unit t
 
   val either : ('a t list) -> 'a t
+  val all : ('a t list) -> 'a list t
   val epsilon : 'a -> 'a t
   val optional : 'a t -> 'a option t
   val star : 'a t -> 'a list t

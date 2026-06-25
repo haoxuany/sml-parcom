@@ -55,6 +55,13 @@ functor Parcom (
     fn s => fn k =>
       List.app (fn f => f s k) l
 
+  fun all (l : 'a t list) : 'a list t =
+    case l of
+      nil => return nil
+    | f :: rest =>
+        bind f (fn hd => fn s => fn k =>
+          all rest s (fn ( tail , s ) => k ( hd :: tail , s )))
+
   val epsilon = return
 
   fun optional (a : 'a t) : 'a option t =
