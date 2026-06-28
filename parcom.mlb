@@ -4,7 +4,11 @@ local
 
   src/parcom.sig.sml
   src/parcom.sml
+  src/parcom_error.sig.sml
+  src/parcom_error.sml
 in
   signature PARCOM
   functor Parcom
+  signature PARCOM_ERROR
+  functor ParcomError
 end

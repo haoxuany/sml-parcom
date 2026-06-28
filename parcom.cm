@@ -1,8 +1,12 @@
 Library
   functor Parcom
   signature PARCOM
+  functor ParcomError
+  signature PARCOM_ERROR
 is
   lib/cmlib/cmlib.cm
 
   src/parcom.sig.sml
   src/parcom.sml
+  src/parcom_error.sig.sml
+  src/parcom_error.sml

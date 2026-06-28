@@ -4,4 +4,5 @@ $(SML_LIB)/basis/basis.mlb
 ../mixfix.mlb
 
 arith.sml
+arith_error.sml
 mixfix.sml

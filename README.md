@@ -118,6 +118,29 @@ to cut down the number of ambiguous results.
 
 An example of usage can be found in [examples/arith.sml](examples/arith.sml).
 
+(Note: there is a more experimental version of parcom that provides you with error reporting:
+```
+functor ParcomError (
+  structure TokenStream : sig
+    type token
+    type stream
+
+    datatype front = Nil | Cons of token * stream
+    val front : stream -> front
+  end
+
+  structure ParseError : sig
+    type t
+
+    val unexpected_eof : t
+  end
+) :> PARCOM_ERROR 
+  where type token = TokenStream.token
+  and type stream = TokenStream.stream
+  and type error = ParseError.t
+```
+Take a look at `parcom_error.sig` for the signature. Note that due to Johnson's algorithm providing you with partial parses, many errors will not be surfaced within the parse result, but will rather have you end up with a partial parse + remaining stream. )
+
 ### Backpatching
 
 A consequence of (Johnson 1995) is that all recursive definitions must be memoized.

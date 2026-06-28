@@ -4,4 +4,5 @@ Group is
   ../lib/cmlib/cmlib.cm
 
   arith.sml
+  arith_error.sml
   mixfix.sml
