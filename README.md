@@ -270,3 +270,6 @@ This library is under MIT license. See [LICENSE](LICENSE).
 The implementation makes extensive use of data structures within cmlib, most
 notably SplayDict and SplaySet. cmlib is licensed under MIT license.
 See [lib/cmlib/LICENSE](lib/cmlib/LICENSE).
+
+Note that cmlib is significantly trimmed down to cut down clone dependencies and
+to support more compilers that don't implement the full SML basis library.

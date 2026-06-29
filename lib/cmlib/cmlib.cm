@@ -1,0 +1,52 @@
+library
+
+        signature BYTESTRING
+        signature DICT
+        signature FROM_STRING
+        signature ORDERED
+        signature SET
+        signature SORT
+        signature STREAM
+        signature SUSP
+
+        structure Bytestring
+        structure CharOrdered
+        structure FromString
+        structure IntOrdered
+        structure IntInfOrdered
+        structure Quicksort
+        structure Stream
+        structure StringOrdered
+        structure Susp
+        structure UnitOrdered
+        structure WordOrdered
+
+        functor InvertOrdered
+        functor ListOrdered
+        functor PairOrdered
+        functor SplayDict
+        functor SplaySet
+
+        library(basis.cm)
+
+is
+
+        basis.cm
+
+        from-string.sig
+        from-string.sml
+        bytestring.sig
+        bytestring.sml
+        susp.sig
+        susp-nj.sml
+        ordered.sig
+        ordered.sml
+        dict.sig
+        set.sig
+        splay-tree.sml
+        dict-splay.sml
+        set-splay.sml
+        sort.sig
+        quicksort.sml
+        stream.sig
+        stream.sml
